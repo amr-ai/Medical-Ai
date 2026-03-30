@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Assistant • MedAI{% endblock %}
+
+{% block content %}
+  <div class="shell">
+    <div class="section">
+      <div class="section__header">
+        <div>
+          <p class="section__title">MedAI Assistant</p>
+          <p class="section__subtitle">Ask general health questions or how to read lab reports. No analysis required.</p>
+        </div>
+        <a class="btn btn--secondary" href="{{ url_for('index') }}">Back to analysis</a>
+      </div>
+
+      <div class="chatPage">
+        <div class="chatPage__wrap reveal is-visible">
+          <div class="chatCard chatCard--full">
+            <div class="chatHeader">
+              <div class="chatTitle">
+                <div class="avatar" aria-hidden="true">✦</div>
+                <div>
+                  <div style="font-weight: 900; letter-spacing: -.02em;">MedAI Doctor Chat</div>
+                  <div class="help" style="margin: 2px 0 0;">Short, calm, plain-text answers. No analysis required.</div>
+                </div>
+              </div>
+              <div class="status"><span class="status__dot" aria-hidden="true"></span>Online</div>
+            </div>
+
+            <div class="chatBody chatBody--full" id="chat_box" aria-live="polite"></div>
+
+            <div class="chatComposer chatComposer--stack">
+              <div class="chatComposer__row">
+                <input class="input" id="chat_input" type="text" placeholder="Ask anything about lab reports…" style="flex:1;" autocomplete="off">
+                <button class="btn btn--primary" id="send_btn" type="button">Send</button>
+              </div>
+              <div class="help" style="margin:0;">Informational only — not a medical diagnosis.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById('chat_box');
+    const chatInput = document.getElementById('chat_input');
+    const sendBtn = document.getElementById('send_btn');
+    let historyArr = [];
+
+    function appendBubble(role, content) {
+      const div = document.createElement('div');
+      div.className = role === 'user' ? 'bubble bubble--user' : 'bubble bubble--ai';
+      div.textContent = content;
+      chatBox.appendChild(div);
+      setTimeout(() => chatBox.scrollTop = chatBox.scrollHeight, 10);
+    }
+
+    function setTyping(isTyping) {
+      let t = document.getElementById('typing');
+      if (isTyping) {
+        if (t) return;
+        t = document.createElement('div');
+        t.id = 'typing';
+        t.className = 'typing';
+        t.innerHTML = '<span></span><span></span><span></span>';
+        chatBox.appendChild(t);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      } else {
+        if (t) t.remove();
+      }
+    }
+
+    async function sendMessage(msg) {
+      const text = (msg ?? chatInput.value).trim();
+      if (!text) return;
+
+      appendBubble('user', text);
+      chatInput.value = '';
+      chatInput.disabled = true;
+      sendBtn.disabled = true;
+      setTyping(true);
+
+      try {
+        const response = await fetch("{{ url_for('chat_assistant') }}", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, history: historyArr })
+        });
+        const data = await response.json();
+        setTyping(false);
+        appendBubble('assistant', data.reply || 'No response.');
+
+        historyArr.push({ role: 'user', content: text });
+        historyArr.push({ role: 'assistant', content: data.reply });
+      } catch (e) {
+        setTyping(false);
+        appendBubble('assistant', 'Sorry — I couldn’t connect right now.');
+      }
+
+      chatInput.disabled = false;
+      sendBtn.disabled = false;
+      chatInput.focus();
+    }
+
+    chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+    sendBtn.addEventListener('click', () => sendMessage());
+
+    window.addEventListener('load', () => {
+      appendBubble('assistant', "Hi — I’m MedAI Assistant. Ask me about lab report terms or how to understand results. This is informational and not a diagnosis.");
+    });
+  </script>
+{% endblock %}
+

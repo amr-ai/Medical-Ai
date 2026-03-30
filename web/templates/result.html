@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+{% block title %}Result • MedAI{% endblock %}
+
+{% block content %}
+  <div class="shell">
+    {% set res_lower = data.prediction_result.result | lower %}
+    {% set severity = 'danger' %}
+    {% if "healthy" in res_lower or "normal" in res_lower or "stage 0" in res_lower %}
+      {% set severity = 'success' %}
+    {% elif "stage 1" in res_lower or "stage 2" in res_lower or "early" in res_lower %}
+      {% set severity = 'warning' %}
+    {% endif %}
+
+    {% set conf_str = (data.prediction_result.confidence|string) %}
+    {% set conf_num = conf_str.replace('%','')|float if '%' in conf_str else conf_str|float %}
+    {% if conf_num < 0 %}
+      {% set conf_num = 0 %}
+    {% endif %}
+    {% if conf_num > 100 %}
+      {% set conf_num = 100 %}
+    {% endif %}
+
+    <div class="section">
+      <div class="section__header">
+        <div>
+          <p class="section__title">Result</p>
+          <p class="section__subtitle">Patient-friendly summary with abnormal highlights and a contextual AI doctor.</p>
+        </div>
+        <div class="row">
+          <a class="btn btn--secondary" href="{{ url_for('history_view') }}">History</a>
+          <a class="btn btn--ghost" href="{{ url_for('index') }}">New analysis</a>
+        </div>
+      </div>
+
+      <div class="grid grid-2">
+        <!-- Left column -->
+        <div class="grid" style="gap:14px;">
+          <div class="resultCard reveal is-visible">
+            <div class="resultCard__top">
+              <div>
+                <div class="row" style="gap:10px; align-items:center;">
+                  <span class="badge badge--pill">Patient</span>
+                  <span style="font-weight: 900; letter-spacing: -.02em;">{{ data.patient_name }}</span>
+                  <span style="color: var(--muted-2); font-weight: 700;">ID {{ data.patient_id }}</span>
+                </div>
+                <div class="spacer-24"></div>
+                <div class="row" style="gap:10px; align-items:center; flex-wrap:wrap;">
+                  <span class="badge badge--pill badge--info">
+                    <span class="badge__dot" aria-hidden="true"></span>
+                    Detected: {{ data.report_type | upper }}
+                  </span>
+                  {% if severity == 'success' %}
+                    <span class="badge badge--pill badge--success">Overall: Good</span>
+                  {% elif severity == 'warning' %}
+                    <span class="badge badge--pill badge--warning">Overall: Monitor</span>
+                  {% else %}
+                    <span class="badge badge--pill badge--danger">Overall: Needs attention</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <form action="{{ url_for('export') }}" method="POST">
+                <button type="submit" class="btn btn--primary btn--shine">Download PDF</button>
+              </form>
+            </div>
+
+            <div class="spacer-24"></div>
+
+            <div class="alert {% if severity == 'success' %}alert--success{% elif severity == 'warning' %}alert--warn{% else %}alert--danger{% endif %}">
+              <div class="alert__icon" aria-hidden="true">AI</div>
+              <div style="flex:1;">
+                <p class="alert__title">{{ data.prediction_result.result }}</p>
+                <p class="alert__text">
+                  Confidence: <strong>{{ data.prediction_result.confidence }}</strong>.
+                  {% if data.report_type == 'ckd' %}
+                    CKD stage is shown as a high-level estimate. Confirm with your clinician.
+                  {% else %}
+                    This is an AI-assisted interpretation. Confirm with your clinician.
+                  {% endif %}
+                </p>
+              </div>
+              <div style="min-width: 160px;">
+                <div class="help" style="margin:0 0 8px; font-weight: 800; color: rgba(15,23,42,.72);">Confidence</div>
+                <div class="progress" aria-label="Confidence progress">
+                  <div class="progress__bar" data-progressbar="{{ conf_num|round(0,'floor') }}"></div>
+                </div>
+              </div>
+            </div>
+
+            {% if data.prediction_result.low_confidence %}
+              <div class="spacer-24"></div>
+              <div class="alert alert--warn">
+                <div class="alert__icon" aria-hidden="true">!</div>
+                <div>
+                  <p class="alert__title">Low confidence</p>
+                  <p class="alert__text">The model is less certain about this prediction. Consider re-uploading a clearer scan or verifying values manually with a doctor.</p>
+                </div>
+              </div>
+            {% endif %}
+
+            <div class="spacer-24"></div>
+
+            <div class="alert alert--info">
+              <div class="alert__icon" aria-hidden="true">i</div>
+              <div>
+                <p class="alert__title">Calm medical note</p>
+                <p class="alert__text">Abnormal values stand out below. If anything looks urgent or you have symptoms, seek medical advice promptly.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card reveal">
+            <div class="card__header">
+              <div class="card__title">
+                <h2 class="h2">Extracted values</h2>
+                <div class="card__meta">Scan-friendly table with elegant status highlighting.</div>
+              </div>
+              <span class="badge badge--pill">OCR + manual completion</span>
+            </div>
+
+            {% set abnormal_keys = data.abnormal_fields | map(attribute='field') | list %}
+            <table class="table" role="table">
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Value</th>
+                  <th>Reference</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for k, v in data.extracted_values.items() %}
+                  {% set is_abnormal = k in abnormal_keys %}
+                  {% set ref = none %}
+                  {% set unit = '' %}
+                  {% for af in data.abnormal_fields %}
+                    {% if af.field == k %}
+                      {% set ref = af.normal %}
+                      {% set unit = af.unit %}
+                    {% endif %}
+                  {% endfor %}
+                  <tr>
+                    <td style="font-weight: 900; letter-spacing: -.01em;">{{ k }}</td>
+                    <td>
+                      {% if v is none %}
+                        <span class="pill pill--muted">missing</span>
+                      {% else %}
+                        {{ "{:.2f}".format(v) if v is number else v }}
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if ref %}
+                        {{ ref }} {{ unit }}
+                      {% else %}
+                        <span style="color: var(--muted-2); font-size: 13px;">Within range</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if v is none %}
+                        <span class="pill pill--muted">needs input</span>
+                      {% elif is_abnormal %}
+                        <span class="pill pill--bad">abnormal</span>
+                      {% else %}
+                        <span class="pill pill--ok">normal</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right column -->
+        <div class="chat reveal">
+          <div class="chatCard">
+            <div class="chatHeader">
+              <div class="chatTitle">
+                <div class="avatar" aria-hidden="true">✦</div>
+                <div>
+                  <div style="font-weight: 900; letter-spacing: -.02em;">Ask MedAI Doctor</div>
+                  <div class="help" style="margin: 2px 0 0;">Context-aware, calm explanations.</div>
+                </div>
+              </div>
+              <div class="status"><span class="status__dot" aria-hidden="true"></span>Online</div>
+            </div>
+            <div class="chatBody" id="chat_box" aria-live="polite"></div>
+            <div class="chatComposer">
+              <input class="input" id="chat_input" type="text" placeholder="Ask about your results…" style="flex:1;" autocomplete="off">
+              <button class="btn btn--primary" id="send_btn" type="button">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatBox = document.getElementById('chat_box');
+    const chatInput = document.getElementById('chat_input');
+    const sendBtn = document.getElementById('send_btn');
+    let historyArr = [];
+
+    function appendBubble(role, content) {
+      const div = document.createElement('div');
+      div.className = role === 'user' ? 'bubble bubble--user' : 'bubble bubble--ai';
+      div.textContent = content;
+      chatBox.appendChild(div);
+      setTimeout(() => chatBox.scrollTop = chatBox.scrollHeight, 10);
+    }
+
+    function setTyping(isTyping) {
+      let t = document.getElementById('typing');
+      if (isTyping) {
+        if (t) return;
+        t = document.createElement('div');
+        t.id = 'typing';
+        t.className = 'typing';
+        t.innerHTML = '<span></span><span></span><span></span>';
+        chatBox.appendChild(t);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      } else {
+        if (t) t.remove();
+      }
+    }
+
+    async function sendMessage(defaultMessage = null) {
+      const msg = (defaultMessage ?? chatInput.value).trim();
+      if (!msg) return;
+
+      if (!defaultMessage) appendBubble('user', msg);
+      chatInput.value = '';
+      chatInput.disabled = true;
+      sendBtn.disabled = true;
+      setTyping(true);
+
+      try {
+        const response = await fetch("{{ url_for('chat') }}", {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: msg, history: historyArr })
+        });
+        const data = await response.json();
+        setTyping(false);
+        appendBubble('assistant', data.reply || 'No response.');
+
+        historyArr.push({ role: 'user', content: msg });
+        historyArr.push({ role: 'assistant', content: data.reply });
+      } catch (e) {
+        setTyping(false);
+        appendBubble('assistant', 'Sorry — I couldn’t connect to the doctor chat right now.');
+      }
+
+      chatInput.disabled = false;
+      sendBtn.disabled = false;
+      chatInput.focus();
+    }
+
+    function sendFromEnter(e) {
+      if (e.key === 'Enter') sendMessage();
+    }
+
+    chatInput.addEventListener('keypress', sendFromEnter);
+    sendBtn.addEventListener('click', () => sendMessage());
+
+    // First message: welcoming + explanatory, not alarming
+    window.addEventListener('load', () => {
+      appendBubble('assistant', "Hi — I’m MedAI Doctor. I can explain what these numbers mean in simple language and help you prepare questions for your clinician.");
+      setTimeout(() => sendMessage("Can you summarize my results and highlight what’s most important?"), 450);
+    });
+  </script>
+{% endblock %}

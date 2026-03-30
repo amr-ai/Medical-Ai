@@ -1,0 +1,468 @@
+[
+    {
+        "timestamp": "2026-03-15T12:55:14.583219",
+        "report_type": "liver",
+        "extracted_values": {
+            "age": 98,
+            "gender": 0,
+            "total_bilirubin": 10.0,
+            "alkaline_phosphotase": 0.0,
+            "sgpt_alamine": 45.0,
+            "sgot_aspartate": 5.0,
+            "total_protien": 5.0,
+            "albumin": 54.0
+        },
+        "prediction_result": {
+            "result": "Liver Disease",
+            "confidence": "66.9%",
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-15T16:04:43.895956",
+        "patient_name": "Amr",
+        "patient_id": "41",
+        "report_type": "ckd",
+        "extracted_values": {
+            "serum_creatinine": 1.01,
+            "blood_urea_nitrogen": 10.27,
+            "albumin_serum": 14.0,
+            "urine_creatinine": 1.0,
+            "urine_albumin": 14.0,
+            "albumin_creatinine_ratio": 2.0,
+            "egfr": 50.32
+        },
+        "prediction_result": {
+            "result": "CKD Stage 3",
+            "confidence": "99.9%",
+            "class_probs": {
+                "Stage 0": "0.0%",
+                "Stage 1": "0.0%",
+                "Stage 2": "0.0%",
+                "Stage 3": "99.9%",
+                "Stage 4": "0.0%",
+                "Stage 5": "0.0%",
+                "Stage 6": "0.0%"
+            },
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-15T16:05:32.513374",
+        "patient_name": "Amr",
+        "patient_id": "1",
+        "report_type": "cbc",
+        "extracted_values": {
+            "HGB": 15,
+            "HCT": 42,
+            "RBC": 5,
+            "MCV": 84.0,
+            "MCH": 30.0,
+            "MCHC": 35.7,
+            "WBC": 5100,
+            "PLT": 3.5
+        },
+        "prediction_result": {
+            "result": "Thrombocytopenia",
+            "confidence": "95.25%",
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-15T16:08:36.853563",
+        "patient_name": "Amr",
+        "patient_id": "2",
+        "report_type": "cbc",
+        "extracted_values": {
+            "HGB": 15,
+            "HCT": 42,
+            "RBC": 5,
+            "MCV": 84.0,
+            "MCH": 30.0,
+            "MCHC": 35.7,
+            "WBC": 5100,
+            "PLT": 3.5
+        },
+        "prediction_result": {
+            "result": "Thrombocytopenia",
+            "confidence": "95.25%",
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-15T16:09:23.530972",
+        "patient_name": "mo",
+        "patient_id": "22",
+        "report_type": "ckd",
+        "extracted_values": {
+            "serum_creatinine": 0.79,
+            "blood_urea_nitrogen": 11.01,
+            "albumin_serum": 41.0,
+            "urine_creatinine": 14.0,
+            "urine_albumin": 14.0,
+            "albumin_creatinine_ratio": 4.0,
+            "egfr": 44.0
+        },
+        "prediction_result": {
+            "result": "CKD Stage 4",
+            "confidence": "99.5%",
+            "class_probs": {
+                "Stage 0": "0.1%",
+                "Stage 1": "0.0%",
+                "Stage 2": "0.1%",
+                "Stage 3": "0.3%",
+                "Stage 4": "99.5%",
+                "Stage 5": "0.0%",
+                "Stage 6": "0.0%"
+            },
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-15T16:09:47.246941",
+        "patient_name": "kk",
+        "patient_id": "12",
+        "report_type": "liver",
+        "extracted_values": {
+            "age": 27,
+            "gender": 1,
+            "total_bilirubin": 0.9,
+            "alkaline_phosphotase": 11,
+            "sgpt_alamine": 36,
+            "sgot_aspartate": 32,
+            "total_protien": 7.2,
+            "albumin": 4.7
+        },
+        "prediction_result": {
+            "result": "Healthy",
+            "confidence": "51.9%",
+            "low_confidence": true
+        }
+    },
+    {
+        "timestamp": "2026-03-16T13:31:16.281932",
+        "patient_name": "Amr",
+        "patient_id": "111",
+        "report_type": "ckd",
+        "extracted_values": {
+            "serum_creatinine": 1.01,
+            "blood_urea_nitrogen": 10.27,
+            "albumin_serum": 11.0,
+            "urine_creatinine": 111.0,
+            "urine_albumin": 11.0,
+            "albumin_creatinine_ratio": 1.0,
+            "egfr": 50.32
+        },
+        "prediction_result": {
+            "result": "CKD Stage 3",
+            "confidence": "99.9%",
+            "class_probs": {
+                "Stage 0": "0.0%",
+                "Stage 1": "0.0%",
+                "Stage 2": "0.0%",
+                "Stage 3": "99.9%",
+                "Stage 4": "0.0%",
+                "Stage 5": "0.0%",
+                "Stage 6": "0.0%"
+            },
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-16T13:32:05.043661",
+        "patient_name": "Amr",
+        "patient_id": "211",
+        "report_type": "cbc",
+        "extracted_values": {
+            "HGB": 15,
+            "HCT": 42,
+            "RBC": 4.2,
+            "MCV": 84.0,
+            "MCH": 30.0,
+            "MCHC": 35.7,
+            "WBC": 5100,
+            "PLT": 3.5
+        },
+        "prediction_result": {
+            "result": "Thrombocytopenia",
+            "confidence": "94.02%",
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-16T13:47:28.019562",
+        "patient_name": "Amr",
+        "patient_id": "41",
+        "report_type": "ckd",
+        "extracted_values": {
+            "serum_creatinine": 1.01,
+            "blood_urea_nitrogen": 10.27,
+            "albumin_serum": 4.0,
+            "urine_creatinine": 4,
+            "urine_albumin": 4,
+            "albumin_creatinine_ratio": 21.78,
+            "egfr": 50.32
+        },
+        "prediction_result": {
+            "result": "CKD Stage 3",
+            "confidence": "99.9%",
+            "class_probs": {
+                "Stage 0": "0.0%",
+                "Stage 1": "0.0%",
+                "Stage 2": "0.0%",
+                "Stage 3": "99.9%",
+                "Stage 4": "0.0%",
+                "Stage 5": "0.0%",
+                "Stage 6": "0.0%"
+            },
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-16T13:50:07.615365",
+        "patient_name": "Amr",
+        "patient_id": "2",
+        "report_type": "cbc",
+        "extracted_values": {
+            "HGB": 15,
+            "HCT": 42,
+            "RBC": 5,
+            "MCV": 84.0,
+            "MCH": 30.0,
+            "MCHC": 35.7,
+            "WBC": 5100,
+            "PLT": 3.5
+        },
+        "prediction_result": {
+            "result": "Thrombocytopenia",
+            "confidence": "95.25%",
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-16T13:58:34.472924",
+        "patient_name": "dd",
+        "patient_id": "41",
+        "report_type": "cbc",
+        "extracted_values": {
+            "HGB": 15,
+            "HCT": 42,
+            "RBC": 5,
+            "MCV": 84.0,
+            "MCH": 30.0,
+            "MCHC": 35.7,
+            "WBC": 5100,
+            "PLT": 3.5
+        },
+        "prediction_result": {
+            "result": "Thrombocytopenia",
+            "confidence": "95.25%",
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-16T14:24:41.198014",
+        "patient_name": "Amr",
+        "patient_id": "22",
+        "report_type": "cbc",
+        "extracted_values": {
+            "HGB": 32.0,
+            "HCT": 23.0,
+            "RBC": 3.0,
+            "MCV": 23.0,
+            "MCH": 23.0,
+            "MCHC": 3.0,
+            "WBC": 33.0,
+            "PLT": 33.0
+        },
+        "prediction_result": {
+            "result": "Iron deficiency anemia",
+            "confidence": "70.14%",
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-16T14:51:35.594620",
+        "patient_name": "mohamed",
+        "patient_id": "55",
+        "report_type": "cbc",
+        "extracted_values": {
+            "HGB": 60.0,
+            "HCT": 2.0,
+            "RBC": 5.0,
+            "MCV": 6.0,
+            "MCH": 7.0,
+            "MCHC": 4.0,
+            "WBC": 5.0,
+            "PLT": 5.0
+        },
+        "prediction_result": {
+            "result": "Thrombocytopenia",
+            "confidence": "27.60%",
+            "low_confidence": true
+        }
+    },
+    {
+        "timestamp": "2026-03-16T14:54:26.041298",
+        "patient_name": "Ahmed",
+        "patient_id": "65",
+        "report_type": "liver",
+        "extracted_values": {
+            "age": 23.0,
+            "gender": 0.0,
+            "total_bilirubin": 23.0,
+            "alkaline_phosphotase": 54.0,
+            "sgpt_alamine": 33.0,
+            "sgot_aspartate": 44.0,
+            "total_protien": 43.0,
+            "albumin": 54.0
+        },
+        "prediction_result": {
+            "result": "Liver Disease",
+            "confidence": "65.3%",
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-16T15:03:11.450040",
+        "patient_name": "farahat",
+        "patient_id": "45",
+        "report_type": "ckd",
+        "extracted_values": {
+            "serum_creatinine": 45.0,
+            "blood_urea_nitrogen": 454.0,
+            "albumin_serum": 54.0,
+            "urine_creatinine": 54.0,
+            "urine_albumin": 455.0,
+            "albumin_creatinine_ratio": 55.0,
+            "egfr": 54.0
+        },
+        "prediction_result": {
+            "result": "CKD Stage 3",
+            "confidence": "75.9%",
+            "class_probs": {
+                "Stage 0": "0.0%",
+                "Stage 1": "0.0%",
+                "Stage 2": "0.1%",
+                "Stage 3": "75.9%",
+                "Stage 4": "0.0%",
+                "Stage 5": "0.3%",
+                "Stage 6": "23.7%"
+            },
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-16T15:05:11.093326",
+        "patient_name": "farahat",
+        "patient_id": "45",
+        "report_type": "ckd",
+        "extracted_values": {
+            "serum_creatinine": 45.0,
+            "blood_urea_nitrogen": 454.0,
+            "albumin_serum": 54.0,
+            "urine_creatinine": 54.0,
+            "urine_albumin": 455.0,
+            "albumin_creatinine_ratio": 55.0,
+            "egfr": 54.0
+        },
+        "prediction_result": {
+            "result": "CKD Stage 3",
+            "confidence": "75.9%",
+            "class_probs": {
+                "Stage 0": "0.0%",
+                "Stage 1": "0.0%",
+                "Stage 2": "0.1%",
+                "Stage 3": "75.9%",
+                "Stage 4": "0.0%",
+                "Stage 5": "0.3%",
+                "Stage 6": "23.7%"
+            },
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-27T17:24:43.337376",
+        "patient_name": "mo",
+        "patient_id": "41",
+        "report_type": "cbc",
+        "extracted_values": {
+            "HGB": 23.0,
+            "HCT": 55.0,
+            "RBC": 33.0,
+            "MCV": 44.0,
+            "MCH": 23.0,
+            "MCHC": 33.0,
+            "WBC": 23.0,
+            "PLT": 32.0
+        },
+        "prediction_result": {
+            "result": "Leukemia with thrombocytopenia",
+            "confidence": "50.18%",
+            "low_confidence": true
+        }
+    },
+    {
+        "timestamp": "2026-03-28T20:27:12.855351",
+        "patient_name": "Amr",
+        "patient_id": "41",
+        "report_type": "cbc",
+        "extracted_values": {
+            "HGB": 15,
+            "HCT": 42,
+            "RBC": 5,
+            "MCV": 84.0,
+            "MCH": 30.0,
+            "MCHC": 35.7,
+            "WBC": 5100,
+            "PLT": 3.5
+        },
+        "prediction_result": {
+            "result": "Thrombocytopenia",
+            "confidence": "95.25%",
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-29T08:13:14.171002",
+        "patient_name": "Amr",
+        "patient_id": "22",
+        "report_type": "cbc",
+        "extracted_values": {
+            "HGB": 15,
+            "HCT": 42,
+            "RBC": 5,
+            "MCV": 84,
+            "MCH": 30,
+            "MCHC": 35.7,
+            "WBC": 5100,
+            "PLT": 3.5
+        },
+        "prediction_result": {
+            "result": "Thrombocytopenia",
+            "confidence": "95.25%",
+            "low_confidence": false
+        }
+    },
+    {
+        "timestamp": "2026-03-29T09:47:29.110884",
+        "patient_name": "Amr",
+        "patient_id": "22",
+        "report_type": "cbc",
+        "extracted_values": {
+            "HGB": 15,
+            "HCT": 42,
+            "RBC": 5,
+            "MCV": 84,
+            "MCH": 30.0,
+            "MCHC": 35.7,
+            "WBC": 5100,
+            "PLT": 3.5
+        },
+        "prediction_result": {
+            "result": "Thrombocytopenia",
+            "confidence": "95.25%",
+            "low_confidence": false
+        }
+    }
+]

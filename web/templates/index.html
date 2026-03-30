@@ -1,0 +1,333 @@
+{% extends "base.html" %}
+{% block title %}MedAI{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <div class="shell">
+      <div class="hero__grid">
+        <div class="reveal is-visible">
+          <div class="kicker"><span class="kicker__pulse" aria-hidden="true"></span> Premium medical AI assistance</div>
+          <div class="spacer-24"></div>
+          <h1 class="h1">Analyze Medical Lab Reports with AI</h1>
+          <p class="subhead">
+            MedAI extracts values from CBC, Liver, and CKD reports and turns them into a calm, clear summary you can understand in seconds.
+          </p>
+          <div class="spacer-24"></div>
+          <div class="row">
+            <a class="btn btn--primary btn--shine" href="#start" data-scrollto>
+              <span>Start Analysis</span>
+            </a>
+            <a class="btn btn--secondary" href="{{ url_for('history_view') }}">
+              <span>View History</span>
+            </a>
+            <span class="badge badge--pill badge--info">
+              <span class="badge__dot" aria-hidden="true"></span>
+              CBC • Liver • CKD
+            </span>
+          </div>
+        </div>
+
+        <div class="hero__panel reveal">
+          <div class="hero__mock">
+            <div class="mockcard mockcard--float">
+              <div class="row" style="justify-content: space-between;">
+                <span class="badge badge--pill badge--success">Normal</span>
+                <span class="badge badge--pill">Confidence 92%</span>
+              </div>
+              <div class="spacer-24"></div>
+              <div class="progress" aria-hidden="true">
+                <div class="progress__bar" style="width:92%"></div>
+              </div>
+            </div>
+            <div class="mockcard mockcard--float2">
+              <div class="row" style="justify-content: space-between;">
+                <span class="badge badge--pill badge--warning">Attention</span>
+                <span class="badge badge--pill">Abnormal values</span>
+              </div>
+              <div class="spacer-24"></div>
+              <div class="row" style="gap:10px; flex-wrap:wrap;">
+                <span class="pill pill--warn">WBC</span>
+                <span class="pill pill--bad">Creatinine</span>
+                <span class="pill pill--ok">HGB</span>
+                <span class="pill pill--muted">…</span>
+              </div>
+            </div>
+            <div class="mockcard">
+              <div class="row" style="justify-content: space-between;">
+                <span class="badge badge--pill badge--info">Ask MedAI Doctor</span>
+                <span class="badge badge--pill">Context-aware</span>
+              </div>
+              <div class="spacer-24"></div>
+              <div style="color: var(--muted); font-size: 13px; line-height:1.6;">
+                “What does my CKD stage mean, and what should I ask my doctor?”
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="start">
+    <div class="shell">
+      <div class="grid" style="grid-template-columns: 1.1fr .9fr;">
+        <div class="card card--glass reveal">
+          <div class="card__header">
+            <div class="card__title">
+              <h2 class="h2">Start a new analysis</h2>
+              <div class="card__meta">A calm, step-by-step flow designed for patients.</div>
+            </div>
+            <span class="badge badge--pill">Secure local session</span>
+          </div>
+
+          <form class="form" data-analyze-form action="{{ url_for('analyze') }}" method="POST" enctype="multipart/form-data">
+            {% if missing_fields %}
+              <input type="hidden" name="is_manual_completion" value="true">
+              <input type="hidden" name="patient_name" value="{{ patient_name }}">
+              <input type="hidden" name="patient_id" value="{{ patient_id }}">
+              <input type="hidden" name="report_type" value="{{ report_type }}">
+              <input type="hidden" name="partial_data" value="{{ partial_data }}">
+
+              <div class="alert alert--warn">
+                <div class="alert__icon" aria-hidden="true">!</div>
+                <div>
+                  <p class="alert__title">Missing values detected</p>
+                  <p class="alert__text">We extracted most of your {{ report_type | upper }} report. Please add the missing values to ensure the analysis is accurate.</p>
+                </div>
+              </div>
+
+              <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;">
+                {% for p_key, p_label in all_fields[report_type] %}
+                  {% if p_key in missing_fields %}
+                    <div class="field">
+                      <div class="label">{{ p_label }}</div>
+                      <input class="input" type="number" step="any" id="{{ p_key }}" name="{{ p_key }}" required>
+                      <div class="help">Enter exactly as shown on the report.</div>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+
+              <div class="row" style="justify-content: flex-end;">
+                <button type="submit" class="btn btn--primary btn--shine">Analyze Complete Data</button>
+              </div>
+            {% else %}
+              <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;">
+                <div class="field">
+                  <div class="label">Patient Name</div>
+                  <input class="input" type="text" name="patient_name" placeholder="e.g. Sara Ahmed" required>
+                  <div class="help">Used in your history and export.</div>
+                </div>
+                <div class="field">
+                  <div class="label">Patient ID</div>
+                  <input class="input" type="text" name="patient_id" placeholder="e.g. 102938" required>
+                  <div class="help">Any identifier you prefer.</div>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="label">Input method</div>
+                <input type="hidden" name="input_method" value="upload">
+                <div class="segmented" data-segmented>
+                  <button type="button" class="segmented__btn is-active" data-segment="upload">
+                    <span aria-hidden="true">⬆</span>
+                    Upload Image/PDF
+                  </button>
+                  <button type="button" class="segmented__btn" data-segment="manual">
+                    <span aria-hidden="true">✎</span>
+                    Manual Text Entry
+                  </button>
+                </div>
+                <div class="help">Choose the fastest option. Upload works best for clear scans.</div>
+              </div>
+
+              <div class="field" data-section="upload">
+                <div class="label">Upload report</div>
+                <div class="dropzone" data-dropzone>
+                  <div class="dropzone__inner">
+                    <div class="badge badge--pill badge--info">Drag & drop</div>
+                    <div style="flex:1; min-width: 180px;">
+                      <div style="font-weight: 900; letter-spacing: -.02em;">Drop your image or PDF here</div>
+                      <div class="help">Accepted: PNG, JPG, PDF. Best results with high-contrast scans.</div>
+                    </div>
+                    <button type="button" class="btn btn--secondary" data-filebtn>Choose file</button>
+                  </div>
+                  <input class="input" style="display:none" type="file" name="file" accept="image/*,.pdf" required>
+                  <div class="filepill" data-filepill>
+                    <span class="pill pill--ok">Selected</span>
+                    <span style="font-weight: 900;" data-filename>report.pdf</span>
+                    <span class="filepill__meta" data-filemeta>PDF • 1.2 MB</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field" data-section="manual" hidden>
+                <div class="label">Manual entry</div>
+                <input type="hidden" name="report_type" value="cbc">
+
+                <div class="help">Select the report type, then enter the values from your lab report.</div>
+                <div class="spacer-24"></div>
+
+                <div class="segmented segmented--manual" data-manual-type>
+                  <button type="button" class="segmented__btn is-active" data-manual-segment="cbc">CBC</button>
+                  <button type="button" class="segmented__btn" data-manual-segment="ckd">CKD</button>
+                  <button type="button" class="segmented__btn" data-manual-segment="liver">Liver</button>
+                </div>
+
+                <div class="spacer-24"></div>
+
+                <div class="manualForm">
+                  <!-- CBC -->
+                  <div class="manualGroup is-active" data-manual-group="cbc">
+                    <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;">
+                      {% for p_key, p_label in all_fields["cbc"] %}
+                        <div class="field">
+                          <div class="label">{{ p_label }}</div>
+                          <input class="input" type="number" step="any" name="{{ p_key }}" placeholder="Enter {{ p_key }}" data-manual-input="cbc">
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+
+                  <!-- CKD -->
+                  <div class="manualGroup" data-manual-group="ckd" hidden>
+                    <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;">
+                      {% for p_key, p_label in all_fields["ckd"] %}
+                        <div class="field">
+                          <div class="label">{{ p_label }}</div>
+                          <input class="input" type="number" step="any" name="{{ p_key }}" placeholder="Enter {{ p_key }}" data-manual-input="ckd">
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+
+                  <!-- Liver -->
+                  <div class="manualGroup" data-manual-group="liver" hidden>
+                    <div class="grid" style="grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px;">
+                      {% for p_key, p_label in all_fields["liver"] %}
+                        {% if p_key == "gender" %}
+                          <div class="field">
+                            <div class="label">{{ p_label }}</div>
+                            <select class="select" name="gender" data-manual-input="liver">
+                              <option value="" selected disabled>Select gender</option>
+                              <option value="1">Male</option>
+                              <option value="0">Female</option>
+                            </select>
+                          </div>
+                        {% else %}
+                          <div class="field">
+                            <div class="label">{{ p_label }}</div>
+                            <input class="input" type="number" step="any" name="{{ p_key }}" placeholder="Enter {{ p_key }}" data-manual-input="liver">
+                          </div>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" style="justify-content: space-between; align-items: center;">
+                <div class="help" style="margin:0;">
+                  By continuing, you agree this is informational and not a medical diagnosis.
+                </div>
+                <button type="submit" class="btn btn--primary btn--shine">Run AI Analysis</button>
+              </div>
+            {% endif %}
+          </form>
+        </div>
+
+        <div class="grid" style="gap: 14px;">
+          <div class="card reveal">
+            <div class="section__header" style="margin:0 0 10px;">
+              <div>
+                <p class="section__title">How MedAI works</p>
+                <p class="section__subtitle">Designed to reduce anxiety and improve clarity.</p>
+              </div>
+            </div>
+            <div class="steps">
+              <div class="step is-active"><span class="step__dot"></span><span class="step__text">Detect report type</span></div>
+              <div class="step"><span class="step__dot"></span><span class="step__text">Extract values (OCR)</span></div>
+              <div class="step"><span class="step__dot"></span><span class="step__text">Check normal ranges</span></div>
+              <div class="step"><span class="step__dot"></span><span class="step__text">Run prediction</span></div>
+              <div class="step"><span class="step__dot"></span><span class="step__text">Explain results + chat</span></div>
+            </div>
+          </div>
+
+          <div class="alert alert--info reveal">
+            <div class="alert__icon" aria-hidden="true">i</div>
+            <div>
+              <p class="alert__title">Reassuring by design</p>
+              <p class="alert__text">We highlight what’s out of range and summarize the prediction clearly. Always confirm with a licensed clinician.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="spacer-40"></div>
+
+      <div class="section reveal">
+        <div class="section__header">
+          <div>
+            <p class="section__title">Features</p>
+            <p class="section__subtitle">A premium AI experience with medical-first UX.</p>
+          </div>
+        </div>
+        <div class="features">
+          <div class="feature">
+            <div class="feature__icon" aria-hidden="true">◎</div>
+            <p class="feature__title">Auto report detection</p>
+            <p class="feature__text">Identifies CBC, Liver, or CKD from your upload or description.</p>
+          </div>
+          <div class="feature">
+            <div class="feature__icon" aria-hidden="true">⎚</div>
+            <p class="feature__title">OCR extraction</p>
+            <p class="feature__text">Turns scanned lab reports into structured values you can review.</p>
+          </div>
+          <div class="feature">
+            <div class="feature__icon" aria-hidden="true">⌁</div>
+            <p class="feature__title">AI prediction</p>
+            <p class="feature__text">Runs ML models tailored to each report type with confidence.</p>
+          </div>
+          <div class="feature">
+            <div class="feature__icon" aria-hidden="true">✦</div>
+            <p class="feature__title">Doctor chat</p>
+            <p class="feature__text">Ask contextual questions and get calm explanations in plain language.</p>
+          </div>
+          <div class="feature">
+            <div class="feature__icon" aria-hidden="true">⇩</div>
+            <p class="feature__title">PDF export</p>
+            <p class="feature__text">Download a clean report with abnormal highlights and prediction.</p>
+          </div>
+          <div class="feature">
+            <div class="feature__icon" aria-hidden="true">▦</div>
+            <p class="feature__title">Patient history</p>
+            <p class="feature__text">Review past analyses and visualize trends over time.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Premium analysis overlay -->
+  <div class="overlay" data-overlay aria-hidden="true">
+    <div class="loaderCard" role="status" aria-live="polite">
+      <div class="loaderTop">
+        <div>
+          <div class="kicker"><span class="kicker__pulse" aria-hidden="true"></span> MedAI is analyzing</div>
+          <div style="font-weight: 900; letter-spacing: -.02em; font-size: 18px; margin-top: 6px;">
+            Preparing your results…
+          </div>
+          <div class="help" style="margin-top: 6px;">This usually takes a few seconds depending on report quality.</div>
+        </div>
+        <div class="spinner" aria-hidden="true"></div>
+      </div>
+      <div class="steps">
+        <div class="step is-active" data-step><span class="step__dot"></span><span class="step__text">Detecting report type</span></div>
+        <div class="step" data-step><span class="step__dot"></span><span class="step__text">Extracting values</span></div>
+        <div class="step" data-step><span class="step__dot"></span><span class="step__text">Checking normal ranges</span></div>
+        <div class="step" data-step><span class="step__dot"></span><span class="step__text">Running AI prediction</span></div>
+        <div class="step" data-step><span class="step__dot"></span><span class="step__text">Preparing result view</span></div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

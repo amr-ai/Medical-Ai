@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MedAI{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script defer src="{{ url_for('static', filename='app.js') }}"></script>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="bg-aurora" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <header class="topbar" data-topbar>
+    <div class="shell">
+      <div class="topbar__inner">
+        <a class="brand" href="{{ url_for('index') }}">
+          <span class="brand__mark" aria-hidden="true">
+            <span class="brand__dot"></span>
+          </span>
+          <span class="brand__text">
+            <span class="brand__name">MedAI</span>
+            <span class="brand__tag">Medical Lab Report Analyzer</span>
+          </span>
+        </a>
+
+        <nav class="nav" aria-label="Primary">
+          <a class="nav__link {% if request.endpoint == 'index' %}is-active{% endif %}" href="{{ url_for('index') }}">Home</a>
+          <a class="nav__link {% if request.endpoint == 'history_view' %}is-active{% endif %}" href="{{ url_for('history_view') }}">History</a>
+          <a class="nav__link {% if request.endpoint == 'assistant' %}is-active{% endif %}" href="{{ url_for('assistant') }}">Chat</a>
+          {% if request.endpoint == 'index' %}
+            <a class="nav__link" href="#about" data-scrollto>About</a>
+          {% else %}
+            <a class="nav__link" href="{{ url_for('index') }}#about">About</a>
+          {% endif %}
+        </nav>
+
+        <div class="topbar__right">
+          <span class="badge badge--info badge--pill">
+            <span class="badge__dot" aria-hidden="true"></span>
+            AI-Powered Medical Report Analyzer
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer" id="about">
+    <div class="shell">
+      <div class="footer__inner">
+        <div class="footer__left">
+          <div class="footer__brand">MedAI</div>
+          <div class="footer__sub">
+            Trustworthy, calm AI assistance for understanding lab reports.
+          </div>
+        </div>
+        <div class="footer__right">
+          <div class="disclaimer">
+            <strong>Medical disclaimer:</strong> MedAI provides informational analysis and does not replace a licensed clinician.
+            If you feel unwell or results are concerning, seek medical advice promptly.
+          </div>
+          <div class="footer__meta">© {{ (datetime.utcnow().year if datetime is defined else 2026) }} MedAI</div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
+

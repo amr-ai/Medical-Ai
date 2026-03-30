@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}History • MedAI{% endblock %}
+
+{% block content %}
+  <div class="shell">
+    <div class="section">
+      <div class="section__header">
+        <div>
+          <p class="section__title">Patient History</p>
+          <p class="section__subtitle">Search, review, and visualize trends across analyses.</p>
+        </div>
+        <a class="btn btn--primary btn--shine" href="{{ url_for('index') }}">New analysis</a>
+      </div>
+
+      {% set total = (stats.total if stats is defined else 0) %}
+      {% set cbc = (stats.cbc if stats is defined else 0) %}
+      {% set ckd = (stats.ckd if stats is defined else 0) %}
+      {% set liver = (stats.liver if stats is defined else 0) %}
+
+      <div class="grid reveal" style="grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px;">
+        <div class="card">
+          <div class="badge badge--pill">Total</div>
+          <div style="font-weight: 900; font-size: 28px; letter-spacing: -.03em; margin-top: 10px;">{{ total }}</div>
+          <div class="help">Analyses saved</div>
+        </div>
+        <div class="card">
+          <div class="badge badge--pill badge--info">CBC</div>
+          <div style="font-weight: 900; font-size: 28px; letter-spacing: -.03em; margin-top: 10px;">{{ cbc }}</div>
+          <div class="help">Complete blood count</div>
+        </div>
+        <div class="card">
+          <div class="badge badge--pill badge--info">CKD</div>
+          <div style="font-weight: 900; font-size: 28px; letter-spacing: -.03em; margin-top: 10px;">{{ ckd }}</div>
+          <div class="help">Kidney function</div>
+        </div>
+        <div class="card">
+          <div class="badge badge--pill badge--info">Liver</div>
+          <div style="font-weight: 900; font-size: 28px; letter-spacing: -.03em; margin-top: 10px;">{{ liver }}</div>
+          <div class="help">Liver panel</div>
+        </div>
+      </div>
+
+      <div class="spacer-32"></div>
+
+      <div class="card reveal" style="padding: 18px;">
+        <div class="row" style="justify-content: space-between; align-items:flex-end;">
+          <div>
+            <div style="font-weight: 900; letter-spacing: -.02em; font-size: 16px;">Search & filter</div>
+            <div class="help">Filter locally by patient name/ID and report type.</div>
+          </div>
+          <span class="badge badge--pill">Dashboard</span>
+        </div>
+        <div class="spacer-24"></div>
+        <div class="grid" style="grid-template-columns: 1.2fr .8fr; gap: 12px;">
+          <div class="field" style="margin:0;">
+            <div class="label">Search</div>
+            <input class="input" id="history_search" type="text" placeholder="Search by patient name or ID…">
+          </div>
+          <div class="field" style="margin:0;">
+            <div class="label">Report type</div>
+            <select class="select" id="history_filter">
+              <option value="all">All</option>
+              <option value="cbc">CBC</option>
+              <option value="ckd">CKD</option>
+              <option value="liver">Liver</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="spacer-24"></div>
+
+      {% if not patients %}
+        <div class="card reveal" style="text-align:center; padding: 40px 18px;">
+          <div class="badge badge--pill badge--info">No history yet</div>
+          <div style="font-weight: 900; letter-spacing: -.02em; font-size: 20px; margin-top: 10px;">Your dashboard is empty</div>
+          <p class="subhead" style="margin-top: 8px;">Run your first analysis to unlock trends, exports, and chat history context.</p>
+          <div class="spacer-24"></div>
+          <a class="btn btn--primary btn--shine" href="{{ url_for('index') }}">Analyze a report</a>
+        </div>
+      {% endif %}
+
+      <div class="grid" id="history_groups" style="gap: 14px;">
+        {% for pid, records in patients.items() %}
+          {% set display_name = records[0].patient_name %}
+          <div class="card reveal" data-patient data-patient-name="{{ display_name|lower }}" data-patient-id="{{ pid|lower }}">
+            <div class="card__header">
+              <div class="card__title">
+                <h2 class="h2">{{ display_name }}</h2>
+                <div class="card__meta">Patient ID: <strong>{{ pid }}</strong> • {{ records|length }} analyses</div>
+              </div>
+              <div class="row">
+                {% set unique_reports = records | map(attribute='report_type') | unique | list %}
+                {% for rep in unique_reports %}
+                  <button type="button" class="btn btn--secondary" onclick="viewTrend('{{ pid }}', '{{ rep }}')">
+                    View {{ rep | upper }} trends
+                  </button>
+                {% endfor %}
+              </div>
+            </div>
+
+            <table class="table" data-history-table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Type</th>
+                  <th>Result</th>
+                  <th>Confidence</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in records | sort(attribute='timestamp', reverse=True) %}
+                  {% set rlow = r.prediction_result.result | lower %}
+                  {% set sev = 'bad' %}
+                  {% if "healthy" in rlow or "normal" in rlow or "stage 0" in rlow %}
+                    {% set sev = 'ok' %}
+                  {% elif "stage 1" in rlow or "stage 2" in rlow or "early" in rlow %}
+                    {% set sev = 'warn' %}
+                  {% endif %}
+                  <tr data-row data-type="{{ r.report_type }}" data-result="{{ r.prediction_result.result|lower }}">
+                    <td>
+                      {% if r.timestamp|length > 10 %}
+                        {{ r.timestamp[:10] }} {{ r.timestamp[11:16] }}
+                      {% else %}
+                        {{ r.timestamp }}
+                      {% endif %}
+                    </td>
+                    <td><span class="pill pill--muted">{{ r.report_type | upper }}</span></td>
+                    <td>
+                      {% if sev == 'ok' %}
+                        <span class="pill pill--ok">{{ r.prediction_result.result }}</span>
+                      {% elif sev == 'warn' %}
+                        <span class="pill pill--warn">{{ r.prediction_result.result }}</span>
+                      {% else %}
+                        <span class="pill pill--bad">{{ r.prediction_result.result }}</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ r.prediction_result.confidence }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+
+            <div id="trend_container_{{ pid }}" style="margin-top: 14px; display: none;">
+              <div class="alert alert--info">
+                <div class="alert__icon" aria-hidden="true">↗</div>
+                <div style="flex:1;">
+                  <p class="alert__title">Trend chart</p>
+                  <p class="alert__text">Charts require at least two data points. If you see an error, run another analysis for the same report type.</p>
+                </div>
+              </div>
+              <div class="spacer-24"></div>
+              <img id="trend_img_{{ pid }}" src="" alt="Trend Chart" style="max-width: 100%; border-radius: 18px; border: 1px solid rgba(15,23,42,.10); box-shadow: var(--shadow-sm);">
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function viewTrend(patientId, reportType) {
+      const container = document.getElementById(`trend_container_${patientId}`);
+      const img = document.getElementById(`trend_img_${patientId}`);
+
+      try {
+        const url = `/trends/${patientId}/${reportType}?t=` + new Date().getTime();
+        const res = await fetch(url);
+
+        if (res.headers.get("content-type")?.includes("application/json")) {
+          const data = await res.json();
+          alert(data.error || "Could not load trends.");
+          return;
+        }
+
+        img.src = url;
+        container.style.display = 'block';
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (e) {
+        alert("Error loading trends.");
+      }
+    }
+
+    // Local search & filter (no backend changes)
+    const searchEl = document.getElementById('history_search');
+    const filterEl = document.getElementById('history_filter');
+    const groups = Array.from(document.querySelectorAll('[data-patient]'));
+
+    function applyFilters() {
+      const q = (searchEl?.value || '').trim().toLowerCase();
+      const t = (filterEl?.value || 'all');
+
+      groups.forEach((g) => {
+        const name = g.getAttribute('data-patient-name') || '';
+        const pid = g.getAttribute('data-patient-id') || '';
+        const matchQ = !q || name.includes(q) || pid.includes(q);
+
+        // filter rows by type
+        const rows = Array.from(g.querySelectorAll('[data-row]'));
+        let anyRowVisible = false;
+        rows.forEach((r) => {
+          const type = r.getAttribute('data-type');
+          const ok = (t === 'all') || (type === t);
+          r.style.display = ok ? '' : 'none';
+          if (ok) anyRowVisible = true;
+        });
+
+        g.style.display = (matchQ && anyRowVisible) ? '' : 'none';
+      });
+    }
+
+    if (searchEl) searchEl.addEventListener('input', applyFilters);
+    if (filterEl) filterEl.addEventListener('change', applyFilters);
+  </script>
+{% endblock %}
