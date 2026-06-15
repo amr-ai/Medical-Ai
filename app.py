@@ -1,12 +1,9 @@
 import os
 import sys
-import csv
-import io
 import json
 from datetime import datetime
-from flask import Flask, request, render_template, jsonify, session, send_file, redirect, url_for, Response
+from flask import Flask, request, render_template, jsonify, session, send_file, redirect, url_for
 from werkzeug.utils import secure_filename
-
 
 # Ensure we can import from parent directory
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -265,44 +262,6 @@ def history_view():
             stats[rt] += 1
         
     return render_template("history.html", patients=patients, stats=stats)
-
-
-@app.route("/history/export")
-def export_history_csv():
-    history = []
-    if os.path.exists(HISTORY_FILE):
-        with open(HISTORY_FILE, "r") as f:
-            try:
-                history = json.load(f)
-            except json.JSONDecodeError:
-                pass
-
-    output = io.StringIO()
-    writer = csv.writer(output)
-    writer.writerow([
-        "Timestamp", "Patient Name", "Patient ID", "Report Type",
-        "Extracted Values", "Prediction Result"
-    ])
-
-    for r in history:
-        writer.writerow([
-            r.get("timestamp", ""),
-            r.get("patient_name", ""),
-            r.get("patient_id", ""),
-            r.get("report_type", ""),
-            json.dumps(r.get("extracted_values", {}), ensure_ascii=False),
-            json.dumps(r.get("prediction_result", {}), ensure_ascii=False)
-        ])
-
-    csv_data = output.getvalue()
-    output.close()
-
-    return Response(
-        csv_data,
-        mimetype="text/csv",
-        headers={"Content-Disposition": "attachment; filename=patients_history.csv"}
-    )
-
 
 @app.route("/trends/<patient_id>/<report_type>")
 def trends(patient_id, report_type):
