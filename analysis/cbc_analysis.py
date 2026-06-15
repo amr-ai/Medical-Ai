@@ -12,6 +12,7 @@ encoder  = joblib.load(BASE_DIR / "label_encoder_cbc.pkl")
 features = joblib.load(BASE_DIR / "selected_features_cbc.pkl")  # 8 selected features
 
 
+
 # ── Prediction ────────────────────────────────────────────────
 def predict(data: dict) -> dict:
     """
