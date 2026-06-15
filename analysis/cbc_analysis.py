@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 
 
+
 # ── Load model artifacts ──────────────────────────────────────
 BASE_DIR = Path(__file__).parent.parent / "models" / "CBC"
 model    = joblib.load(BASE_DIR / "best_model_cbc.pkl")
