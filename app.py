@@ -17,6 +17,7 @@ from chat.doctor_chat import get_reply, get_assistant_reply
 
 from dotenv import load_dotenv
 
+
 # Load environment variables from .env file
 load_dotenv()
 

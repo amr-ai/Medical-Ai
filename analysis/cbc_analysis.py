@@ -2,8 +2,6 @@ import joblib
 import pandas as pd
 from pathlib import Path
 
-
-
 # ── Load model artifacts ──────────────────────────────────────
 BASE_DIR = Path(__file__).parent.parent / "models" / "CBC"
 model    = joblib.load(BASE_DIR / "best_model_cbc.pkl")
@@ -11,9 +9,6 @@ scaler   = joblib.load(BASE_DIR / "scaler_cbc.pkl")
 encoder  = joblib.load(BASE_DIR / "label_encoder_cbc.pkl")
 features = joblib.load(BASE_DIR / "selected_features_cbc.pkl")  # 8 selected features
 
-
-
-# ── Prediction ────────────────────────────────────────────────
 def predict(data: dict) -> dict:
     """
     data keys (match OCR output or manual input):
@@ -40,7 +35,6 @@ def predict(data: dict) -> dict:
         "confidence": confidence,
         "low_confidence": bool(confidence_val < 0.60)
     }
-
 
 # ── Print result ──────────────────────────────────────────────
 def print_result(result: dict):
